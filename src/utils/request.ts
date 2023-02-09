@@ -4,6 +4,8 @@ export const createURLWithQuery = (url: string | URL, query: Record<string, stri
   return String(url)
 }
 
+export const defaultTimeout = 5000
+
 const assertResponseOk = (response: Response): Response => {
   if (!response.ok) throw new Error(`unexpected status code: ${response.status}`)
   return response
