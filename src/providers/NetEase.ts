@@ -1,7 +1,6 @@
 import { createURLWithQuery, defaultTimeout } from '../utils'
 import { Provider, SearchParams } from './Provider'
 import axios from "axios"
-import crypto from 'crypto'
 
 const BASE_URL = 'https://music.163.com/api/'
 
@@ -40,7 +39,7 @@ const randomUserAgent = (): string => {
 
 const getRandomHex = (length:number):string  => {
   const isOdd = length % 2;
-  const randHex = crypto.randomBytes(8).toString("hex")
+  const randHex = (Math.random() * 0xfffff * 1000000).toString(16)
   return isOdd ? randHex.slice(1) : randHex;
 }
 
@@ -141,7 +140,7 @@ export class NetEase implements Provider {
       if (!response2.data) return
       const lrc = response2.data.lrc
       if (!lrc) return
-      // console.log("LRC",lrc)
+      console.log("LRC",lrc)
       return lrc.lyric
     } catch (error) {
       // console.log("error 2",error)
