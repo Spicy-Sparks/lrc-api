@@ -12,19 +12,18 @@ interface ArtistInfo {
 const headers = {
   'user-agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
-  "cookie": 'NMTID=',
+  // "cookie": 'NMTID=',
 }
 
 export class NetEase implements Provider {
   private async getArtistInfo(artist: string): Promise<ArtistInfo | undefined> {
     try {
-      const response = await axios.get(
-        createURLWithQuery(new URL('search/pc', BASE_URL), {
+      const response = await axios.post(
+        BASE_URL+"cloudsearch/pc",
+        { 
           s: artist,
           limit: '1',
           type: '100',
-        }),
-        {
           timeout: defaultTimeout,
           headers:headers
         }
@@ -36,7 +35,7 @@ export class NetEase implements Provider {
         name: matchedArtist.name,
       }
     } catch (error) {
-      // console.log("error 1",error)
+      console.log("error 1",error)
     }
     
   }
@@ -46,13 +45,12 @@ export class NetEase implements Provider {
     if (!artistInfo) return
 
     try {
-      const response = await axios.get(
-        createURLWithQuery(new URL('search/pc', BASE_URL), {
-          s: [name, artistInfo.name].join(' '),
+      const response = await axios.post(
+        BASE_URL+"cloudsearch/pc",
+        {
+          s: [name, artist].join(' '),
           limit: '50',
           type: '1',
-        }),
-        {
           timeout:defaultTimeout,
           headers:headers
         }
@@ -73,7 +71,7 @@ export class NetEase implements Provider {
       if (!lrc) return
       return lrc.lyric
     } catch (error) {
-      // console.log("error 2",error)
+      console.log("error 2",error)
     }
   }
 }
