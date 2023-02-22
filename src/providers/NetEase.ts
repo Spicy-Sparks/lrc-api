@@ -1,6 +1,8 @@
 import { createURLWithQuery, defaultTimeout } from '../utils'
 import { Provider, SearchParams } from './Provider'
-import axios from "axios"
+import axios, { AxiosHeaders } from "axios"
+import crypto from "crypto"
+const querystring = require('querystring');
 
 const BASE_URL = 'https://music.163.com/api/'
 
@@ -37,6 +39,9 @@ const randomUserAgent = (): string => {
   return userAgentList[num]
 }
 
+
+
+
 const getRandomHex = (length:number):string  => {
   const isOdd = length % 2;
   const randHex = (Math.random() * 0xfffff * 1000000).toString(16)
@@ -62,23 +67,23 @@ const randomCookies = (musicU: string): string => {
 export class NetEase implements Provider {
   private async getArtistInfo(artist: string): Promise<ArtistInfo | undefined> {
     try {
+      const body = { 
+        s: artist,
+        limit: '1',
+        type: '100'
+      }
       const response = await axios.post(
         BASE_URL+"cloudsearch/pc",
-        { 
-          s: artist,
-          limit: '1',
-          type: '100'
-        },{
+        body,{
           timeout: defaultTimeout,
           headers: {
-            'Accept': '*/*',
-            'Connection': 'keep-alive',
+            // 'Accept': '*/*',
+            // 'Connection': 'keep-alive',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Host': 'music.163.com',
+            // 'Host': 'music.163.com',
             'User-Agent': randomUserAgent(),
             "Cookie": randomCookies(getRandomHex(128)),
             },
-        proxy: false,
     }
       )
       // console.log("response config: " + JSON.stringify(response.config))
@@ -99,28 +104,29 @@ export class NetEase implements Provider {
   async getBestMatched({ name, artist }: SearchParams) {
     const artistInfo = await this.getArtistInfo(artist)
     if (!artistInfo) return
-
+    const body = {
+      s: [name, artistInfo.name].join(' '),
+      limit: '10',
+      type: '1',
+    }
     try {
       const response = await axios.post(
         BASE_URL+"cloudsearch/pc",
-        {
-          s: [name, artistInfo.name].join(' '),
-          limit: '10',
-          type: '1',
-        },{
+        body,{
           timeout:defaultTimeout,
           headers: {
-            'Accept': '*/*',
+            // 'Accept': '*/*',
             // 'Accept-Language': 'zh-CN,zh;q=0.8,gl;q=0.6,zh-TW;q=0.4',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Host': 'music.163.com',
+            // 'Connection': 'keep-alive',
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+            // 'Host': 'music.163.com',
             'User-Agent': randomUserAgent(),
             "Cookie": randomCookies(getRandomHex(128)),
+            // "Content-Length":JSON.stringify(body).length
             }
         } 
       )
-      // console.log("response config: " + JSON.stringify(response.config))
+      // console.log("response config 2: " + JSON.stringify(response.config))
       // console.log("response: " + JSON.stringify(response.data))
       if (!response.data || response.data.code !==200) return
       const songs = response.data.result.songs
