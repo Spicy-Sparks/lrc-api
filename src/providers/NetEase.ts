@@ -116,7 +116,7 @@ export class NetEase implements Provider {
             // 'Accept': '*/*',
             // 'Accept-Language': 'zh-CN,zh;q=0.8,gl;q=0.6,zh-TW;q=0.4',
             // 'Connection': 'keep-alive',
-            // 'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded',
             // 'Host': 'music.163.com',
             'User-Agent': randomUserAgent(),
             "Cookie": randomCookies(getRandomHex(128)),
