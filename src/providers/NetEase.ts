@@ -1,8 +1,6 @@
 import { createURLWithQuery, defaultTimeout } from '../utils'
 import { Provider, SearchParams } from './Provider'
-import axios, { AxiosHeaders } from "axios"
-import crypto from "crypto"
-const querystring = require('querystring');
+import axios from "axios"
 
 const BASE_URL = 'https://music.163.com/api/'
 
