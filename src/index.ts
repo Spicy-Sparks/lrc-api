@@ -31,6 +31,3 @@ export const searchLyrics = async (rawName:string, rawArtist:string):Promise<Lyr
   }
   return { success: false }
 }
-
-
-searchLyrics("under the influence","chris brown")
