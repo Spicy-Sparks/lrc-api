@@ -57,12 +57,12 @@ const randomCookies = (musicU: string): string => {
 }
 
 const headers = {
-  "Accept":"*/*",
+  // "Accept":"*/*",
   'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
   // "Cookie": 'NMTID=',
-  'Content-Type': 'text/plain;charset=UTF-8',
-  "Connection": "keep-alive",
-  "Accept-Encoding": "gzip, deflate, br",
+  // 'Content-Type': 'text/plain;charset=UTF-8',
+  // "Connection": "keep-alive",
+  // "Accept-Encoding": "gzip, deflate, br",
 }
 
 export class NetEase implements Provider {
