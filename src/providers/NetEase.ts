@@ -50,41 +50,35 @@ const randomCookies = (musicU: string): string => {
   const CookiesList = [
     'os=pc; osver=Microsoft-Windows-10-Professional-build-10586-64bit; appver=2.0.3.131777; channel=netease; __remember_me=true',
     // 'MUSIC_U'+ musicU +'; buildver=1506310743; resolution=1920x1080; mobilename=MI5; osver=7.0.1; channel=coolapk; os=android; appver=4.2.0',
-    'osver=%E7%89%88%E6%9C%AC%2010.13.3%EF%BC%88%E7%89%88%E5%8F%B7%2017D47%EF%BC%89; os=osx; appver=1.5.9; MUSIC_U=' + musicU + '; channel=netease;'
+    'osver=%E7%89%88%E6%9C%AC%2010.13.3%EF%BC%88%E7%89%88%E5%8F%B7%2017D47%EF%BC%89; os=osx; appver=1.5.2; MUSIC_U=' + musicU + '; channel=netease;'
   ]
   const num = Math.floor(Math.random() * CookiesList.length)
   return CookiesList[num]
 }
 
-// const headers = {
-//   'User-Agent':
-//     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
-//   "cookie": 'NMTID=',
-// }
+const headers = {
+  "Accept":"*/*",
+  'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
+  // "Cookie": 'NMTID=',
+  'Content-Type': 'text/plain;charset=UTF-8',
+  "Connection": "keep-alive",
+  "Accept-Encoding": "gzip, deflate, br",
+}
 
 export class NetEase implements Provider {
   private async getArtistInfo(artist: string): Promise<ArtistInfo | undefined> {
     try {
       const body = { 
         s: artist,
-        limit: '1',
-        type: '100'
+        limit: 1,
+        type: 100
       }
-      const response = await axios.post(
-        BASE_URL+"cloudsearch/pc",
-        body,{
-          timeout: defaultTimeout,
-          headers: {
-            // 'Accept': '*/*',
-            // 'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            // 'Host': 'music.163.com',
-            'User-Agent': randomUserAgent(),
-            "Cookie": randomCookies(getRandomHex(128)),
-            },
-    }
-      )
-      // console.log("response config: " + JSON.stringify(response.config))
+      const response = await axios.get(
+        BASE_URL+"search/get",
+        {params:body,timeout: defaultTimeout,
+          headers: headers,
+    })
+      // console.log("response config first: " + JSON.stringify(response.config))
       // console.log("response: " + JSON.stringify(response.data))
       if (!response.data || response.data.code !==200) return
       const matchedArtist = response.data.result.artists?.[0]
@@ -108,29 +102,17 @@ export class NetEase implements Provider {
       type: '1',
     }
     try {
-      const response = await axios.post(
-        BASE_URL+"cloudsearch/pc",
-        body,{
-          timeout:defaultTimeout,
-          headers: {
-            // 'Accept': '*/*',
-            // 'Accept-Language': 'zh-CN,zh;q=0.8,gl;q=0.6,zh-TW;q=0.4',
-            // 'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            // 'Host': 'music.163.com',
-            'User-Agent': randomUserAgent(),
-            "Cookie": randomCookies(getRandomHex(128)),
-            // "Content-Length":JSON.stringify(body).length
-            }
-        } 
-      )
+      const response = await axios.get(
+        BASE_URL+"search/get",
+        {params:body,timeout: defaultTimeout,
+          headers: headers,
+    })
       // console.log("response config 2: " + JSON.stringify(response.config))
       // console.log("response: " + JSON.stringify(response.data))
       if (!response.data || response.data.code !==200) return
       const songs = response.data.result.songs
-      const matchedSongs = songs.filter(({ ar }: any) => ar?.[0]?.id === artistInfo.id)
+      const matchedSongs = songs.filter(({ artists }: any) => artists?.[0]?.id === artistInfo.id)
       const matchedSong = matchedSongs.find((song: any) => String(song.name).includes(name)) ?? matchedSongs[0]
-      
       if (!matchedSong) return
   
       const response2 = await axios.get(
@@ -140,7 +122,6 @@ export class NetEase implements Provider {
         }),
         {timeout:defaultTimeout}
       )
-      // console.log("response2: " + response2.data)
       if (!response2.data) return
       const lrc = response2.data.lrc
       if (!lrc) return

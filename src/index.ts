@@ -17,7 +17,7 @@ export const searchLyrics = async (rawName:string, rawArtist:string):Promise<Lyr
   if (!name || !artist) return { success: false }
 
   // Order by (the quality of the LRCs).
-  const providers: Provider[] = [new NetEase(), new Lyricsify()]
+  const providers: Provider[] = [new NetEase()]
 
   // But still request in parallel...
   const promises = providers.map((provider) =>
@@ -31,3 +31,4 @@ export const searchLyrics = async (rawName:string, rawArtist:string):Promise<Lyr
   }
   return { success: false }
 }
+
