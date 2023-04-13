@@ -1,32 +1,46 @@
-import { fetchText } from '../utils'
+import axios from 'axios'
 import { Provider, SearchParams } from './Provider'
+import { parse } from 'node-html-parser'
+import { decode } from 'html-entities'
 
 const BASE_URL = 'https://www.lyricsify.com/'
 
-export class Lyricsify implements Provider {
-  private async getLink (artist: string, name: string) {
-    const query = artist + ' ' + name
-    const data = await fetchText(BASE_URL + 'search?q=' + query)
-    const result = data.toString()
-    const list = result.split('<div class="li">')
-    const parsed = list.slice(1, list.length)
-    let links
-    parsed.forEach((items) => {
-      const title = items.match('>(.*?)<')
-      const link = items.match('href=\"([^"]*)\"')
-      if (title?.length && link?.length) {
-        if (title[1].toLowerCase().includes(artist) && title[1].toLowerCase().includes(name)) {
-          links = link[1]
-        }
-      }
-    })
+const normalizeString = (str?: string) => {
+  if (!str) return ''
+  return str
+    .trim()
+    .replace(/[,&].*/, '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
 
-    return links
+export class Lyricsify implements Provider {
+  private async getLink(artist: string, name: string) {
+    const query = artist + ' ' + name
+    const response = await axios.get(BASE_URL + 'search?q=' + query)
+    const data = response.data
+    const list = parse(data)
+      ?.querySelectorAll('.li')
+      .map((item) => {
+        const row = item.querySelector('.title')
+        return { title: row?.textContent.toLowerCase(), link: item.querySelector('.title')?.getAttribute('href') }
+      })
+    const match = list.find((items) => {
+      return (
+        normalizeString(items.title?.toLowerCase()).includes(artist) &&
+        normalizeString(items.title?.toLowerCase()).includes(name)
+      )
+    })
+    return match?.link
   }
 
   private removeTags = (str: string) => {
-    if ((str === null) || (str === '')) { return false } else {
-      str = str.toString().replace(/(<([^>]+)>)/ig, '')
+    if (str === null || str === '') {
+      return false
+    } else {
+      str = str
+        .toString()
+        .replace(/(<([^>]+)>)/gi, '')
         .replace(/&lt;/g, '<')
         .replace(/&gt/g, '>')
         .replace(/&quot;/g, '"')
@@ -45,17 +59,20 @@ export class Lyricsify implements Provider {
     return array.join('\n')
   }
 
-  private async getLrc (link: string) {
-    const data = await fetchText(BASE_URL + link)
-    const result = data.toString()
-    const lrc = result.match(/<div id="entry"[^>]*>(.+?)<\/div>/is)
-    if (lrc?.length) {
-      const parse = this.removeTags(lrc[1]).toString()
+  private async getLrc(link: string) {
+    const id: string = link.substring(link.lastIndexOf('.') + 1)
+    const response = await axios.get(BASE_URL + link)
+    const result = response.data
+    const page = parse(result)
+    const lrc = page?.getElementById(`lyrics_${id}_details`)
+    const decoded = decode(lrc.rawText)
+    if (decoded?.length) {
+      const parse = this.removeTags(decoded).toString()
       return parse
     }
   }
 
-  async getBestMatched ({ rawName, rawArtist }: SearchParams) {
+  async getBestMatched({ rawName, rawArtist }: SearchParams) {
     const name = rawName.toLowerCase()
     const artist = rawArtist.toLowerCase()
     const link = await this.getLink(artist, name)
@@ -63,7 +80,6 @@ export class Lyricsify implements Provider {
       const lrc = await this.getLrc(link)
       return lrc
     }
-
     return ''
   }
 }
