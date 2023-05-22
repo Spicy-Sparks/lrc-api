@@ -2,20 +2,14 @@ import axios from 'axios'
 import { Provider, SearchParams } from './Provider'
 import { parse } from 'node-html-parser'
 import { decode } from 'html-entities'
+import { normalizeString } from '../utils'
 
 const BASE_URL = 'https://www.lyricsify.com/'
 
-const normalizeString = (str?: string) => {
-  if (!str) return ''
-  return str
-    .trim()
-    .replace(/[,&].*/, '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-}
-
 export class Lyricsify implements Provider {
   private async getLink(artist: string, name: string) {
+    const normalizedArtist = normalizeString(artist)
+    const normalizedName = normalizeString(name)
     const query = artist + ' ' + name
     const response = await axios.get(BASE_URL + 'search?q=' + query)
     const data = response.data
@@ -27,8 +21,8 @@ export class Lyricsify implements Provider {
       })
     const match = list.find((items) => {
       return (
-        normalizeString(items.title?.toLowerCase()).includes(artist) &&
-        normalizeString(items.title?.toLowerCase()).includes(name)
+        normalizeString(items.title?.toLowerCase()).includes(normalizedArtist) &&
+        normalizeString(items.title?.toLowerCase()).includes(normalizedName)
       )
     })
     return match?.link

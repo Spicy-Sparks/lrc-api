@@ -5,3 +5,12 @@ export const normalizeLRC = (lrc: string): string => {
 
   return lrc
 }
+
+export const normalizeString = (str?: string) => {
+  if (!str) return ''
+  return str
+    .trim()
+    .replace(/[,&].*/, '')
+    .normalize('NFD')
+    .replace(/([\u0300-\u036f]|[^0-9a-zA-Z])/g, '')
+}
