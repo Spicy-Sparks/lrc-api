@@ -6,12 +6,19 @@ import { normalizeString } from '../utils'
 
 const BASE_URL = 'https://www.lyricsify.com/'
 
+const config = {
+  headers: {
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+  },
+}
+
 export class Lyricsify implements Provider {
   private async getLink(artist: string, name: string) {
     const normalizedArtist = normalizeString(artist)
     const normalizedName = normalizeString(name)
     const query = artist + ' ' + name
-    const response = await axios.get(BASE_URL + 'search?q=' + query)
+    const response = await axios.get(BASE_URL + 'search?q=' + query, config)
     const data = response.data
     const list = parse(data)
       ?.querySelectorAll('.li')
@@ -55,7 +62,7 @@ export class Lyricsify implements Provider {
 
   private async getLrc(link: string) {
     const id: string = link.substring(link.lastIndexOf('.') + 1)
-    const response = await axios.get(BASE_URL + link)
+    const response = await axios.get(BASE_URL + link, config)
     const result = response.data
     const page = parse(result)
     const lrc = page?.getElementById(`lyrics_${id}_details`)
