@@ -12,5 +12,5 @@ export const normalizeString = (str?: string) => {
     .trim()
     .replace(/[,&].*/, '')
     .normalize('NFD')
-    .replace(/([\u0300-\u036f]|[^0-9a-zA-Z])/g, '')
+    .replace(/([\u0300-\u036f]|[^0-9a-zA-Z\s'()])/g, '')
 }
