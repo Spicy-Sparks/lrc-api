@@ -122,7 +122,7 @@ export class NetEase implements Provider {
       if (!response2.data) return
       const lrc = response2.data.lrc
       if (!lrc) return
-      return lrc.lyrics
+      return lrc.lyric
     } catch (error) {
       // console.log("error 2",error)
     }
