@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Provider, SearchParams } from './Provider'
 import { parse } from 'node-html-parser'
 import { decode } from 'html-entities'
-import { normalizeString } from '../utils'
+import { normalizeString, removeTags } from '../utils'
 
 const BASE_URL = 'https://www.lyricsify.com/'
 
@@ -43,31 +43,6 @@ export class Lyricsify implements Provider {
     return match?.link
   }
 
-  private removeTags = (str: string) => {
-    if (str === null || str === '') {
-      return false
-    } else {
-      str = str
-        .toString()
-        .replace(/(<([^>]+)>)/gi, '')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/^\s*\n\n/gm, '')
-        .replace(/&#039;/g, "'")
-        .replace(/&amp;/g, '&')
-    }
-    const listStr = str.split('\n')
-    const array: Array<string> = []
-    listStr.forEach((items) => {
-      if (items.substring(0, 9).includes('.')) {
-        array.push(items)
-      }
-    })
-
-    return array.join('\n')
-  }
-
   private async getLrc(link: string) {
     const id: string = link.substring(link.lastIndexOf('.') + 1)
     const response = await axios.get(BASE_URL + link, config)
@@ -76,7 +51,7 @@ export class Lyricsify implements Provider {
     const lrc = page?.getElementById(`lyrics_${id}_details`)
     const decoded = decode(lrc.rawText)
     if (decoded?.length) {
-      const parse = this.removeTags(decoded).toString()
+      const parse = removeTags(decoded).toString()
       return parse
     }
   }

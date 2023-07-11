@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsup src/index.ts && node dist/index.js",
     "build": "tsup src/index.ts --sourcemap",
-    "publish": "npm run build && wrangler publish"
+    "publish": "npm run build"
   },
   "keywords": [],
   "author": "Slavko Josipovic <slavkoj6@gmail.com>",
