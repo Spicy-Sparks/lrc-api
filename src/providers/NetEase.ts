@@ -56,13 +56,16 @@ const randomCookies = (musicU: string): string => {
 }
 
 const headers = {
-  // "Accept":"*/*",
+  Accept: '*/*',
+  'Content-Type': 'application/x-www-form-urlencoded',
+  Connection: 'keep-alive',
+  // Cookie: 'NMTID=',
   'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
-  // "Cookie": 'NMTID=',
-  // 'Content-Type': 'text/plain;charset=UTF-8',
-  // "Connection": "keep-alive",
-  // "Accept-Encoding": "gzip, deflate, br",
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+  // 'Content-Type': 'application/x-www-form-urlencoded',
+  'Accept-Encoding': 'gzip, deflate, sdch',
+  Referer: 'http://music.163.com',
+  Host: 'music.163.com',
 }
 
 export class NetEase implements Provider {
@@ -71,12 +74,13 @@ export class NetEase implements Provider {
       const body = {
         s: artist,
         limit: 1,
-        type: 100,
+        type: '100',
       }
       const response = await axios.get(BASE_URL + 'search/get', {
         params: body,
         timeout: defaultTimeout,
         headers: headers,
+        maxBodyLength: Infinity,
       })
       if (!response.data || response.data.code !== 200) return
       const matchedArtist = response.data.result.artists?.[0]
@@ -86,7 +90,8 @@ export class NetEase implements Provider {
         name: matchedArtist.name,
       }
     } catch (error) {
-      // console.log("error 1",error)
+      // console.log('error 1', error)
+      return
     }
   }
 
@@ -104,6 +109,7 @@ export class NetEase implements Provider {
         timeout: defaultTimeout,
         headers: headers,
       })
+      // console.log('response song', response)
       if (!response.data || response.data.code !== 200) return
       const songs = response.data.result.songs
       const matchedSongs = songs.filter((song: any) => song.artists.some((artist: any) => artist.id === artistInfo.id))
@@ -124,7 +130,7 @@ export class NetEase implements Provider {
       if (!lrc) return
       return lrc.lyric
     } catch (error) {
-      // console.log("error 2",error)
+      return
     }
   }
 }
