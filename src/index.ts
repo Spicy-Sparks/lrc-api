@@ -1,4 +1,4 @@
-import { Lyricsify, Provider, NetEase } from './providers'
+import { Provider, NetEase, QQMusic } from './providers'
 import { normalizeLRC, normalizeString } from './utils'
 
 interface LyricsResponse {
@@ -17,7 +17,7 @@ export const searchLyrics = async (rawName: string, rawArtist: string): Promise<
   if (!name || !artist) return { success: false }
 
   // Order by (the quality of the LRCs).
-  const providers: Provider[] = [new NetEase(), new Lyricsify()]
+  const providers: Provider[] = [new NetEase(), new QQMusic()]
 
   // But still request in parallel...
   const promises = providers.map((provider) =>
