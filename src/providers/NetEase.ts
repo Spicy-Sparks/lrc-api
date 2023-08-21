@@ -76,7 +76,7 @@ export class NetEase implements Provider {
         limit: 1,
         type: '100',
       }
-      const response = await axios.get(BASE_URL + 'search/get', {
+      const response = await axios.get(BASE_URL + 'cloudsearch/pc', {
         params: body,
         timeout: defaultTimeout,
         headers: headers,
@@ -104,7 +104,7 @@ export class NetEase implements Provider {
       type: '1',
     }
     try {
-      const response = await axios.get(BASE_URL + 'search/get', {
+      const response = await axios.get(BASE_URL + 'cloudsearch/pc', {
         params: body,
         timeout: defaultTimeout,
         headers: headers,
@@ -112,7 +112,9 @@ export class NetEase implements Provider {
       // console.log('response song', response)
       if (!response.data || response.data.code !== 200) return
       const songs = response.data.result.songs
-      const matchedSongs = songs.filter((song: any) => song.artists.some((artist: any) => artist.id === artistInfo.id))
+      if (!songs) return
+      const matchedSongs = songs.filter((song: any) => song.ar.some((artist: any) => artist.id === artistInfo.id))
+      if (!matchedSongs) return
       //console.log('matched songs ', matchedSongs)
       const matchedSong = matchedSongs.find((song: any) => String(song.name).includes(name)) ?? matchedSongs[0]
       //console.log('matched song', matchedSong)

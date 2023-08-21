@@ -29,6 +29,7 @@ export class QQMusic implements Provider {
         name: matchedArtist.name,
       }
     } catch (error) {
+      return
       // console.log('error', error)
     }
   }
@@ -73,6 +74,7 @@ export class QQMusic implements Provider {
       if (!lyric) return
       return String(lyric)
     } catch (error) {
+      return
       // console.log('error', error)
     }
   }
